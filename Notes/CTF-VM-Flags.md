@@ -8,7 +8,7 @@
 
 - E - CTF{dont_share_steal_brute}
 
-- F - CTF{52}
+- F - CTF{49}
 
 
 
