@@ -10,5 +10,8 @@
 
 - F - CTF{52}
 
+- G - CTF{5c334a87a13065fa6df983aa7c9378bc}
 
+- H - CTF{663e3567c51a59ab7dbf03d64b469c48}
 
+- I -  CTF{02528e9bf31bf7c461e9d8cb47b3f8db}
