@@ -10,6 +10,7 @@
 #include <fcntl.h>
 
 #define BUFSIZE 4096
+#define SOCKET_ERROR -1
 
 #define USAGE                                                                 \
 "usage:\n"                                                                    \
@@ -28,6 +29,8 @@ static struct option gLongOptions[] = {
         {"help",   no_argument,       NULL, 'h'},
         {NULL, 0,                     NULL, 0}
 };
+
+int open_sockfd(char *host, char *port);
 
 /* Main ========================================================= */
 int main(int argc, char **argv) {
@@ -75,5 +78,74 @@ int main(int argc, char **argv) {
 
 
     /* Socket Code Here */
+    int sockfd, byte_count;
+    char buffer[BUFSIZE]; //store received data into this buffer
+    FILE *fp;
 
+    // convert portno to string
+    char *port = malloc(16);
+    snprintf(port, 16, "%u", portno);
+
+    // created this to utilize the getaddrinfo api
+    sockfd = open_sockfd(hostname, port);
+
+    // receive data from server and write it to a file
+    fp = fopen(filename, "a+"); //opens a text file for both reading and writing (per instructions) in appending mode, creates file if it does not exist
+
+    // continue to receive data until no more data to recv
+    while(1)
+    {
+        bzero(buffer, BUFSIZE);
+        byte_count = recv(sockfd, buffer, BUFSIZE, 0);
+        
+        //printf("Bytes received: %d \n", byte_count);
+
+        // error out if byte_count < 1
+        if(byte_count < 1){
+            break;
+        }
+        else{
+            fwrite(buffer, sizeof(char), byte_count, fp);
+        }
+    }
+
+    fclose(fp);
+    close(sockfd);
+    exit(0);
+}
+
+int open_sockfd(char *host, char *port)
+{
+    int sockfd;
+
+    struct addrinfo hints;
+    struct addrinfo *servinfo, *p; // points to results linkedlist
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET; // specifying only ipv4 populated in linkedlist
+    hints.ai_socktype = SOCK_STREAM; // tcp connection
+    hints.ai_flags = AI_NUMERICSERV; // using numeric port arg
+    hints.ai_flags |= AI_ADDRCONFIG; // recommended for connections
+
+    //spit out list of ip addresses resolved by host
+    getaddrinfo(host, port, &hints, &servinfo);
+
+    // walk the list
+    for (p = servinfo; p; p = p->ai_next)
+    {
+        /* create a socket descriptor*/
+        if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
+            continue;
+        
+        if (connect(sockfd, p->ai_addr, p->ai_addrlen) != SOCKET_ERROR)
+            break;
+        
+        close(sockfd);
+    }
+
+    freeaddrinfo(servinfo);
+    if (!p)
+        return SOCKET_ERROR;
+    else
+        return sockfd; 
 }

@@ -10,6 +10,8 @@
 
 /* Be prepared accept a response of this length */
 #define BUFSIZE 4096
+#define MSGSIZE 16
+#define SOCKET_ERROR -1
 
 #define USAGE                                                                 \
 "usage:\n"                                                                    \
@@ -29,6 +31,8 @@ static struct option gLongOptions[] = {
         {NULL, 0,                      NULL, 0}
 };
 
+
+int open_clientfd(char *host, char *port);
 
 /* Main ========================================================= */
 int main(int argc, char **argv) {
@@ -75,5 +79,62 @@ int main(int argc, char **argv) {
     }
 
     /* Socket Code Here */
+    int clientfd;
+    int status;
+    char buffer[MSGSIZE];
 
+    // convert portno to string
+    char *port = malloc(MSGSIZE);
+    snprintf(port, MSGSIZE, "%u", portno);
+
+    // created this to utilize the getaddrinfo api
+    clientfd = open_clientfd(hostname, port);
+
+    if((status = write(clientfd, message, strlen(message))) == SOCKET_ERROR)
+        exit(0);
+    
+    bzero(buffer, MSGSIZE);
+    if((status = read(clientfd, buffer, MSGSIZE)) == SOCKET_ERROR)
+        exit(0);
+
+    printf("%s", buffer);
+
+    close(clientfd);
+    exit(0);
+}
+
+int open_clientfd(char *host, char *port)
+{
+    int clientfd;
+
+    struct addrinfo hints;
+    struct addrinfo *servinfo, *p; // points to results linkedlist
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET; // specifying only ipv4 populated in linkedlist
+    hints.ai_socktype = SOCK_STREAM; // tcp connection
+    hints.ai_flags = AI_NUMERICSERV; // using numeric port arg
+    hints.ai_flags |= AI_ADDRCONFIG; // recommended for connections
+
+    //spit out list of ip addresses resolved by host
+    getaddrinfo(host, port, &hints, &servinfo);
+
+    // walk the list
+    for (p = servinfo; p; p = p->ai_next)
+    {
+        /* create a socket descriptor*/
+        if ((clientfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) < 0)
+            continue;
+        
+        if (connect(clientfd, p->ai_addr, p->ai_addrlen) != SOCKET_ERROR)
+            break;
+        
+        close(clientfd);
+    }
+
+    freeaddrinfo(servinfo);
+    if (!p)
+        return SOCKET_ERROR;
+    else
+        return clientfd; 
 }
