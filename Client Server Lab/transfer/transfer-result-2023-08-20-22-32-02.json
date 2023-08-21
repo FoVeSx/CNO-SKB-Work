@@ -1,0 +1,38 @@
+{
+    "tests": [
+        {
+            "client_console": "gcc -o transferclient -Wall -Werror --std=gnu99 -g3 -fsanitize=address -fno-omit-frame-pointer -Wno-format-security transferclient.c -lpthread -static-libasan\n",
+            "client_returncode": "0",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the client compiles"
+        },
+        {
+            "client_console": "",
+            "client_returncode": "0",
+            "server_console": "",
+            "server_returncode": "-9",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the client accurately saves the file sent from the server"
+        },
+        {
+            "server_console": "gcc -o transferserver -Wall -Werror --std=gnu99 -g3 -fsanitize=address -fno-omit-frame-pointer -Wno-format-security transferserver.c -lpthread -static-libasan\n",
+            "server_returncode": "0",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the server compiles"
+        },
+        {
+            "client_console": "",
+            "client_returncode": "0",
+            "server_console": "",
+            "server_returncode": "-9",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the server accurately sends the file to the client"
+        }
+    ],
+    "execution_time": "5.61",
+    "score": "4/4"
+}

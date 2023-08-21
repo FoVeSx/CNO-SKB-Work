@@ -1,0 +1,56 @@
+{
+    "tests": [
+        {
+            "client_console": "gcc -o echoclient -Wall -Werror --std=gnu99 -g3 -fsanitize=address -fno-omit-frame-pointer -Wno-format-security echoclient.c -lpthread -static-libasan\n",
+            "client_returncode": "0",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the client compiles"
+        },
+        {
+            "client_console": "hello",
+            "client_returncode": "0",
+            "server_console": "",
+            "server_returncode": "null",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the client prints the message from the server"
+        },
+        {
+            "client_console": "hellohellohello",
+            "client_returncode": "0",
+            "server_console": "",
+            "server_returncode": "null",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the client properly prints 15 char message (max message length)"
+        },
+        {
+            "server_console": "gcc -o echoserver -Wall -Werror --std=gnu99 -g3 -fsanitize=address -fno-omit-frame-pointer -Wno-format-security echoserver.c -lpthread -static-libasan\n",
+            "server_returncode": "0",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the server compiles"
+        },
+        {
+            "client_console": "hello",
+            "client_returncode": "0",
+            "server_console": "",
+            "server_returncode": "null",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the server echoes the message from the client"
+        },
+        {
+            "client_console": "hellohellohello",
+            "client_returncode": "0",
+            "server_console": "",
+            "server_returncode": "null",
+            "extra_data": "",
+            "passfail": "passed",
+            "name": "Test that the server properly returns 15 char message (max message length)"
+        }
+    ],
+    "execution_time": "5.06",
+    "score": "6/6"
+}
