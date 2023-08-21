@@ -13,16 +13,25 @@
 #include <getopt.h>
 #include "gfclient.h"
 
+/* 
+NOTES:
+"%n" usefulness: will return number of characters read or printed by printf or scanf
+EXAMPLE: input: 10 20 ===> scanf(%d%d%n, a, b, num) ====> 1,0,'',2,0, so num = 5
+*/
+
 #define BUFSIZE 4096
 
 const char *request_template = "GETFILE GET %s\r\n\r\n";
-const char *request_end_str = "\r\n\r\n";
+//const char *response_template = "%s %s %zd\r\n\r\n%n"; wonky, bc the one case starts with a \n and doesnt include it
+const char *response_template = "%s %s %zd%n";
+const char *response_end_template = "\r\n\r\n";
 
-// functions created in this file (not used in header file)
+// functions created in this file
 int create_socket(char *hostname, unsigned short portno);
 int open_sockfd(char *host, char *port);
 int send_request(gfcrequest_t *gfr, int socket);
 int parse_header(gfcrequest_t *gfr, int socket);
+int parse_chunk(gfcrequest_t *gfr, int socket);
 
 // define the gfcrequest struct
 struct gfcrequest_t
@@ -101,7 +110,23 @@ int gfc_perform(gfcrequest_t *gfr)
         close(sockfd_gfr);
         return -1;
     }
+    shutdown(sockfd_gfr, SHUT_WR);
 
+    if ((parse_header(gfr, sockfd_gfr)) < 0 )
+    {
+        perror("Failed to parse header.");
+        close(sockfd_gfr);
+        return -1;
+    }
+
+    if ((parse_chunk(gfr, sockfd_gfr)) < 0 )
+    {
+        perror("Failed to parse chunk data.");
+        close(sockfd_gfr);
+        return -1;
+    }
+
+    close(sockfd_gfr);
     return 0;
 }
 
@@ -147,46 +172,18 @@ void gfc_set_writefunc(gfcrequest_t *gfr, void (*writefunc)(void*, size_t, void 
     gfr->writefunc = writefunc;
 }
 
-char* gfc_strstatus(gfstatus_t status)
-{
-    char *strstatus = NULL;
-
-    // could use switch but whatever
-    if (status == GF_OK) 
-    {
-        strstatus = "OK";
-    } 
-    else if (status == GF_FILE_NOT_FOUND) 
-    {
-        strstatus = "FILE_NOT_FOUND";
-    }
-    else if (status == GF_INVALID) 
-    {
-        strstatus = "INVALID";
-    }
-    else if (status == GF_ERROR) 
-    {
-        strstatus = "ERROR";
-    } 
-    else 
-    {
-        strstatus = "UNKNOWN";
-    }
-
-    return strstatus;
-}
-
 int create_socket(char *hostname, unsigned short portno)
 {
     int sockfd;
 
     // convert portno to string
-    char *port = malloc(16);
-    snprintf(port, 16, "%u", portno);
+    char *port = malloc(20);
+    snprintf(port, 20, "%u", portno);
 
     // created this to utilize the getaddrinfo api
     sockfd = open_sockfd(hostname, port);
 
+    free(port);
     return sockfd;
 }
 
@@ -225,7 +222,7 @@ int open_sockfd(char *host, char *port)
         return sockfd; 
 }
 
-int send_request(gfcrequest_t *gfr, int sockfd)
+int send_request(gfcrequest_t *gfr, int socket)
 {
     size_t request_length = 0;
     size_t bytes_sent = 0;
@@ -239,7 +236,13 @@ int send_request(gfcrequest_t *gfr, int sockfd)
 
     while(n < request_length) // not include null terminating character; avoid using != 
     {
-        bytes_sent = send(sockfd, request + n, request_length, 0);
+        bytes_sent = send(socket, request + n, request_length, 0);
+        if(bytes_sent < 0)
+        {
+            printf("Failed to send request to server\n.");
+            gfr->status = GF_ERROR;
+            return -1;
+        }
         n += bytes_sent;
     }
 
@@ -247,37 +250,181 @@ int send_request(gfcrequest_t *gfr, int sockfd)
 }
 
 /* 
-Receive Header - GETFILE OK 107528\r\n\r\n
+Receive Header - GETFILE OK 107528\r\n\r\n%data
 When the status is OK, the length should be a number expressed in ASCII (what sprintf will give you)
 The sequence ‘\r\n\r\n’ marks the end of the header. All remaining bytes are the files contents.
-No content may be sent if the status is FILE_NOT_FOUND or ERROR.
 */
-int parse_header(gfcrequest_t *gfr, int sockfd)
+int parse_header(gfcrequest_t *gfr, int socket)
 {
+    // Kinda bad - but assumption that data read in to ssize t is large
+    // enough to be the header + potential file data so we only do one recv 
     size_t byte_count = 0;
-    char temp_buffer[BUFSIZE];
-    char total_buffer[BUFSIZE * 2];
+    char buffer[BUFSIZE];
+    bzero(buffer, BUFSIZE);
 
-    bzero(temp_buffer, BUFSIZE);
-    bzero(total_buffer, BUFSIZE * 2);
+    //char header[BUFSIZE];
+    //bzero(header, BUFSIZE);
 
-    // grab entire header until end sequence is seen
-    do
+    byte_count = recv(socket, buffer, BUFSIZE, 0);
+
+    if (byte_count == 0)
     {
-        byte_count = recv(sockfd, temp_buffer, BUFSIZE, 0);
+        gfr->status = GF_INVALID;
+        return -1;
+    }
 
-        if (byte_count == 0) {
-            gfr->status = GF_INVALID;
+    if (byte_count < 0)
+    {
+        gfr->status = GF_ERROR;
+        return -1;
+    }
+
+    /*
+    Header consists of: 
+    GETFILE (SCHEMA) STATUS FILESIZE END CHUNKSTART (GET POSITION)
+    Necessary variables for header
+    */
+    char str_schema[50];
+    char str_status[50];
+    size_t file_size = 0;
+    int eom_start_position = 0; // this is actually the header without the end marker, chunk start position = this + marker (4), technically the end of marker start position
+
+    printf("Received Response: %s\n", buffer);
+    //printf("Received Header: %s", strtok(buffer, response_end_template));
+
+    //strcat(header, strtok(buffer, response_end_template));
+    //printf("Received Response: %s\n", header);
+
+    /*
+    PARSE HEADER PORTION
+    note: sscanf returns number of fields filled or EOF unsuccessful
+    */ 
+
+    // printf("in the buffer:%s\n", buffer);
+    if (sscanf(buffer, response_template, str_schema, str_status, &file_size, &eom_start_position) == EOF)
+    {
+        printf("SCANNING HEADER FAIL.\n");
+        gfr->status = GF_INVALID;
+        return -1;
+    }
+
+    /*
+    VALIDATE HEADER PORTION
+    */ 
+    if (str_schema == NULL || str_status == NULL)
+    {
+        printf("INVALID HEADER.\n");
+        gfr->status = GF_INVALID;
+        return -1;
+    }
+    
+    // SCHEMA CHECK - POSSIBLE "GET" SCHEMA? XD
+    if (strcmp(str_schema, "GETFILE") != 0)
+    {
+        printf("INVALID HEADER.\n");
+        gfr->status = GF_INVALID;
+        return -1;
+    }
+
+    // STATUS CHECK - CHECK AGAINST SET: {OK,FILE_NOT_FOUND,ERROR}
+    if (strcmp(str_status, "OK") == 0)
+    {
+        gfr->status = GF_OK;
+    }
+    else if (strcmp(str_status, "FILE_NOT_FOUND") == 0)
+    {
+        gfr->status = GF_FILE_NOT_FOUND;
+    }
+    else if (strcmp(str_status, "ERROR") == 0)
+    {
+        gfr->status = GF_ERROR;
+    }
+    else
+    {
+        printf("INVALID HEADER.\n");
+        gfr->status = GF_INVALID;
+        bzero(buffer, BUFSIZE);
+        return -1;
+    }
+    /*
+    if (gfr->headerfunc)
+    {
+        gfr->headerfunc(header, strlen(header), gfr->headerarg);
+    }
+    bzero(header, BUFSIZE);
+    */
+
+    gfr->filelen = file_size;
+
+    // IT'S POSSIBLE THAT ON THE RECV, WE GOT FILE DATA ALONG WITH THE HEADER IN THE BUFFER
+    // SO WE NEED TO DO FANCY CALLBACK STUFF HERE.
+    if ((gfr->status == GF_OK) && (eom_start_position < byte_count))
+    {
+        //printf("bytes received over socket: %zu\n", byte_count);
+        //printf("data start position: %d\n", eom_start_position);
+        size_t write_chunk = byte_count - (eom_start_position + strlen(response_end_template));
+        //printf("first grab byte count: %zu\n", write_chunk);
+        gfr->writefunc(buffer + eom_start_position + strlen(response_end_template), write_chunk, gfr->writearg);
+        gfr->bytesreceived += write_chunk;
+        //printf("bytes received: %zu\n", gfr->bytesreceived);
+        //printf("file length: %zu\n", gfr->filelen);
+    }
+    //bzero(buffer, BUFSIZE);
+    return 0;
+}
+
+
+/*
+Parse CHUNK / FILE CONTENT
+*/
+int parse_chunk(gfcrequest_t *gfr, int socket)
+{
+    char buffer[BUFSIZE];
+    
+    while(gfr->status == GF_OK && (gfr->bytesreceived < gfr->filelen))
+    {
+        bzero(buffer, BUFSIZE);
+        size_t write_chunk = recv(socket, buffer, BUFSIZE, 0);
+        if (write_chunk == 0)
+        {
+            printf("Chunk data corrupt.\n");
             return -1;
         }
 
-        if (byte_count < 0) {
-            gfr->status = GF_ERROR;
+        if (write_chunk < 0)
+        {
+            printf("Socket connection broke during transfer of chunk.\n");
             return -1;
         }
 
-        strcat(total_buffer, temp_buffer);
-        bzero(temp_buffer, BUFSIZE);
-    } while ({/* condition */});
+        gfr->writefunc(&buffer, write_chunk, gfr->writearg);
+        gfr->bytesreceived += write_chunk;
+    }
 
+    return 0;
+}
+
+char* gfc_strstatus(gfstatus_t status)
+{
+    char *strstatus = NULL;
+
+    // could use switch but whatever
+    if (status == GF_OK) 
+    {
+        strstatus = "OK";
+    } 
+    else if (status == GF_FILE_NOT_FOUND) 
+    {
+        strstatus = "FILE_NOT_FOUND";
+    }
+    else if (status == GF_INVALID) 
+    {
+        strstatus = "INVALID";
+    }
+    else if (status == GF_ERROR) 
+    {
+        strstatus = "ERROR";
+    } 
+
+    return strstatus;
 }

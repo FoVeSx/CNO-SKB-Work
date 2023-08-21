@@ -1,0 +1,59 @@
+NEED TO DO:
+debugging + makefile
+
+NOTES ON CLIENT SERVER BASICS:
+client sends request -> 
+server process and handles request ->
+server sends response
+
+NIC lives and utilies I/O bus
+
+socket programming basics:
+client ip:client port (ephemeral / random assinged by kernel)
+<-> server ip:server port (port service ex: web server port 80)
+kernel on the server dictates what service to call
+
+each port has a process / program to utilize for client request
+
+all unix i/o devices including networks are modeled as files
+
+file descriptor - these files are always present whenever a program is run
+stdin, stdout, stderr (0, 1, 2)
+
+rio functions, reliable io functions
+
+NOTES ON FUNC POINTERS AND CALLBACKS:
+function pointers - can be passed as arguments to function
+
+void A()
+    printf(hello)
+
+void B(void (*ptr)()) // func pointer as argument
+    ptr(); // call back function that ptr points to
+
+int main()
+    void (*p)() = A;
+    B(p);
+
+    OR
+
+    B(A); // name of function returns a pointer, A is a call back function
+
+whats the point in this? kinda useless
+so..
+
+void sort(int A[] or int *A, int n) // pass in array, and length of array
+    bubble sort algo:
+    compare previous with next, then swap
+
+
+int main()
+    int A[] = {3,2,1,5,6,4} // create an ascending sort e.g. 1,2,3,4 
+
+
+Using a function pointer instead of just calling a comparison function is more useful because then you can create many different comparison functions and still use that one sort function.
+This means you no longer have to have direct access to the implementation details of the sort function, thus helping to keep things cleaner and easier to see/manage. (this is not my comment , it's a reply to a question 3 years ago from now , I pasted it so new people coming could see it and maybe help them understand the real benefit/use of function pointers)
+
+instead of having bubble sort control the argument, the argument is controlled in main
+meaning if you have a compare for greater than, or less than, then you would need to change the sort code in bubble sort and select which function to use for which sort
+the alternative is in main, pass in the compare function callback and bubblesort doesnt get touched
