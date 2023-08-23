@@ -33,6 +33,7 @@ Key Takeaways:
 **Attack Lab**
 
 Key Takeaways:
+- DEP and ASLR: data execution prevention (code being executed in memory/ stack) and address space layout randomisation (randomy offset of memory structures)
 - Little Endian (deadbeef would be ef be ad de) and understanding address space length (8 bytes in this case with 00 representing one byte)
 - Explot Security Vuln when protections arent put in place for buffer overflows
 - Tricky part was that you could not circumvent validation code, you must incorporate attack strings such that when ret instruction ran, it would go to the address of injected code, touch func, or a gadget
@@ -49,27 +50,35 @@ Key Takeaways:
 **Echo Lab**
 
 Key Takeaways:
-- Explicit memory management- outside of the heap, even managing the stack, making sure to keep ordering of code in mind
-- Little bit of algorithms part - meeting time constraint and reversing a linkedlist in C, using two different pointers to make the swaps happen
-- Making code a bit more robust with error handling for things such as NULL pointers
+- Used BeeJ's guide, literal life saver
+- Client send some bytes to server, server sends content back, and spits out onto stdout
+- When looking at other examples, 90% of examples were using the old gethostbyname API, I utilized the getaddrinfo api (the new more robust cool kid way) to walk through all the possible DNS resolved ip addresses (there can be multiple ones for one lookup i.e. twitter.com)
+- My debugging kinda sucked for this and the rest of the labs, just used the tester along w/ print statements to see what was going on
 
 **Transfer Lab**
 
 Key Takeaways:
-- Explicit memory management- outside of the heap, even managing the stack, making sure to keep ordering of code in mind
-- Little bit of algorithms part - meeting time constraint and reversing a linkedlist in C, using two different pointers to make the swaps happen
-- Making code a bit more robust with error handling for things such as NULL pointers
+- Used BeeJ's guide, literal life saver
+- Properly implemented the fact that its possible that loss COULD be expected and to continously receieve data until the returned bytes was zero
+- Used getaddrinfo api again
+- Learned a little file I/O
 
 **GF-Lib Lab**
 
 Key Takeaways:
-- Explicit memory management- outside of the heap, even managing the stack, making sure to keep ordering of code in mind
-- Little bit of algorithms part - meeting time constraint and reversing a linkedlist in C, using two different pointers to make the swaps happen
-- Making code a bit more robust with error handling for things such as NULL pointers
+- Built off of transfer lab
+- ALOT of string manipulation / functions for parsing, got familiar with string library
+- Function Pointers and Callbacks and the purpose of them - its a good way to set arguments for a function without having to specify different functions for every type of need - for example, registering an argument to write_func to be writing to a file, but not necessarily doesnt have to be a file
+- Main chunk was perform (for client) - to create the socket, receive info to header, and then use registered callback to export
+- For server - somewhat similar, listen for a request, parse it until we receieve "\r\n\r\n", user registers a handler callback which controls how the request will be handled
 
 **MTGF Lab**
 
 Key Takeaways:
-- Explicit memory management- outside of the heap, even managing the stack, making sure to keep ordering of code in mind
-- Little bit of algorithms part - meeting time constraint and reversing a linkedlist in C, using two different pointers to make the swaps happen
-- Making code a bit more robust with error handling for things such as NULL pointers
+- Overthought this lab, and spent a bit too much time
+- Was a bit easier, but just tried to spend time understanding conceptual things
+- Threads share same virtual memory space
+- Pthread join - joining with main thread to wait for thread(s) to finish executing until moving on
+- Learned about Mutex locks and conditionals - needed to make MT program thread safe, along with protecting data, aka race conditions
+- Main thread sends signal to worker threads whether to pop from queue if queue is empty 
+- Understanding Queue (wasn't trivial, very basic push and pop / enqueue and pop)
