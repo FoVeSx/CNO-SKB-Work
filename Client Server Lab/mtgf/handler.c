@@ -11,7 +11,21 @@
 
 #define BUFFER_SIZE 4096
 
-ssize_t handler_get(gfcontext_t *ctx, char *path, void* arg){
+extern pthread_mutex_t mutex;
+extern pthread_cond_t cond_worker;
+extern void enqueue(gfcontext_t *ctx, char *file_path);
+
+ssize_t handler_setup(gfcontext_t *ctx, char *path, void *arg)
+{
+	pthread_mutex_lock(&mutex);
+	enqueue(ctx, path);
+	pthread_cond_signal(&cond_worker);
+	pthread_mutex_unlock(&mutex);
+
+	return 0;
+}
+
+ssize_t handler_get(gfcontext_t *ctx, char *path){
 	int fildes;
 	size_t file_len, bytes_transferred;
 	ssize_t read_len, write_len;
