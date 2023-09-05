@@ -1,0 +1,10 @@
+﻿cl : command line  warning D9025: overriding '/sdl' with '/GS-'
+  Source.c
+C:\projects\Cohere Work\CNO-SKB-Work\Importer Lab\Project\Project1\Source.c(52,22): warning C4133: 'function': incompatible types - from 'WCHAR *' to 'CHAR *'
+C:\projects\Cohere Work\CNO-SKB-Work\Importer Lab\Project\Project1\Source.c(52,54): warning C4133: 'function': incompatible types - from 'PWSTR' to 'CHAR *'
+C:\projects\Cohere Work\CNO-SKB-Work\Importer Lab\Project\Project1\Source.c(84,23): warning C4018: '<': signed/unsigned mismatch
+  Generating code
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+  All 4 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Project1.vcxproj -> C:\projects\Cohere Work\CNO-SKB-Work\Importer Lab\Project\Project1\Release\Project1.exe

@@ -1,0 +1,5 @@
+﻿cl : command line  warning D9025: overriding '/sdl' with '/GS-'
+  Source.c
+Source.obj : error LNK2001: unresolved external symbol _RTC_InitBase
+Source.obj : error LNK2001: unresolved external symbol _RTC_Shutdown
+C:\projects\Cohere Work\CNO-SKB-Work\Importer Lab\Project\Project1\x64\Debug\Project1.exe : fatal error LNK1120: 2 unresolved externals
