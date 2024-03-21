@@ -1,0 +1,66 @@
+Windows API Function Cheatsheets by snowcra5h: https://github.com/snowcra5h/windows-api-function-cheatsheets
+Branch Tables and Jump Tables by snowcra5h: https://github.com/snowcra5h/branch-tables-and-jump-tables
+x86 Assembly Cheatsheet by snowcra5h: https://github.com/snowcra5h/x86
+Carnegie Mellon University Systems Programming
+The CMU Systems Programming course highly recommends two foundational texts: "Computer Systems: A Programmer's Perspective" and "The C Programming Language". The course's comprehensive materials, including the schedule, exams, and lectures, are accessible online. It also offers a robust set of resources for mastering C programming, covering topics from Stanford engineering lectures to GCC's C99 features, manual pages, networking guides, system calls, and beyond.
+Required Reading
+CMU Systems Programming book: https://www.amazon.com/Computer-Systems-Programmers-Perspective-Edition/dp/013409266X
+The C Programming Language by Kernighan and Ritchie: https://www.amazon.com/Programming-Language-2nd-Brian-Kernighan/dp/0131103628/
+Course Materials and Labs
+Course Schedule and Materials: http://www.cs.cmu.edu/afs/cs/academic/class/15213-m17/www/schedule.html
+Book's Official Site: http://csapp.cs.cmu.edu/3e/home.html
+Lab Exercises: http://csapp.cs.cmu.edu/3e/labs.html
+Lecture Videos: https://scs.hosted.panopto.com/Panopto/Pages/Sessions/List.aspx#folderID=%22b96d90ae-9871-4fae-91e2-b1627b43e25e%22
+Y86-64 Simulator Documentation: http://csapp.cs.cmu.edu/3e/simguide.pdf
+Virtual Memory Documentation: http://csapp.cs.cmu.edu/3e/docs/dsa.pdf
+Online Resources
+RTFMan Pages: https://www.kernel.org/doc/man-pages/ - Always go to the man pages first!
+SSL/TSL: https://wiki.openssl.org/index.php/SSL/TLS_Client
+Beej's Networking C: https://beej.us/guide/bgnet/ - Amazing
+Linux Syscalls: https://linuxhint.com/list_of_linux_syscalls/
+Stanford Engineering C Lectures: https://www.youtube.com/watch?v=Ps8jOj7diA0&list=PLjn3WmBeabPOUzxcCkzk4jYMGRZMZ6ylF - Best C Resource online
+Stanford EDU C assignments: https://web.stanford.edu/class/archive/cs/cs107/cs107.1206/assignments.html
+Status of C99 features in GCC: https://gcc.gnu.org/c99status.html
+C VA_ARGS: https://en.cppreference.com/w/cpp/preprocessor/replace
+Algorithms for: DFT DCT DST FFT: https://www.kurims.kyoto-u.ac.jp/~ooura/fft.html
+Apple Source Browser: https://opensource.apple.com/source/BerkeleyDB/BerkeleyDB-21/db/clib/ - Lots of nice code implementations for things like strchr strcasecmp sprintf
+GNU C Programming Tutorial: http://crasseux.com/books/ctutorial/
+Steve Holmes C Programming: http://www.strath.ac.uk/IT/Docs/Ccourse/
+C Programming class notes: http://www.eskimo.com/~scs/cclass/cclass.html
+C tutorials: http://cslibrary.stanford.edu/
+An Introduction to C: http://cprog.tomsweb.net/cintro.html
+FAQ: http://www.c-faq.com/
+Declarations: http://www.ericgiguere.com/articles/reading-c-declarations.html
+Event-Driven: http://eventdrivenpgm.sourceforge.net/
+Microsoft Learn - C Docs: https://learn.microsoft.com/en-us/cpp/c-language/?view=msvc-170
+CASIO® Personal Computer PB-2000C Introduction to the C programming language: http://www.pisi.com.pl/piotr433/manuals/c_lang.pdf - In case you want to target a late 80s pocket computer that, in the Japanese production (the AI-1000), ran LISP 2 instead of C as its system language (both use HD61700d processor).
+C Books (FREE)
+UNIX System Calls and Subroutines: http://www.cs.cf.ac.uk/Dave/C/
+Bug-Free C Code: http://www.duckware.com/bugfreec/
+The C Book: http://publications.gbdirect.co.uk/c_book/
+C elements of style: http://www.oualline.com/style/index.html
+The Art of Unix Programming: http://www.faqs.org/docs/artu/index.html
+Modern C: https://hal.inria.fr/hal-02383654/document
+Advanced Tutorials: http://www.cprogramming.com/advtutorial.html
+BitHacking
+https://graphics.stanford.edu/~seander/bithacks.html - god tier bit hacks
+https://cheatography.com/jsondhof/cheat-sheets/bit-hacks/ - bit hacking cheat sheet
+Game Dev
+A thread by @Mattias_G about making retro-style games in C/C++, and also about getting them to run in a browser. https://twitter.com/Mattias_G/status/1762257302013284372
+Low Level
+inline assembly: http://csapp.cs.cmu.edu/3e/waside/waside-embedded-asm.pdf
+OS-Development Build Your Own OS: https://wiki.osdev.org/Expanded_Main_Page
+Build a Computer from Nand Gates to OS: https://www.nand2tetris.org/
+The Art of Assembly: https://www.phatcode.net/res/223/files/html/toc.html - amazing
+Introduction to 64-Bit Assembly Language Programming for Linux and OS X by Ray Seyfarth: http://rayseyfarth.com/
+What Every Programmer Should Know About Memory by Ulrich Drepper: https://people.freebsd.org/~lstewart/articles/cpumemory.pdf
+Modern x64 Assembly by What's a Creel?: https://www.youtube.com/watch?v=rxsBghsrvpI
+Performance Programming: x64 Caches by What's a Creel?: https://www.youtube.com/watch?v=bHzrhH7yySA
+A Comprehensive Guide To Debugging Optimized x64 Code by Jorge: https://www.youtube.com/watch?v=MUNRvqpske0
+Introduction to x64 Assembly by Chris Lomont: https://software.intel.com/en-us/articles/introduction-to-x64-assembly
+Intel 64 and IA-32 Architectures Software Developer Manuals: https://software.intel.com/en-us/articles/intel-sdm - Contain all the technical information regarding the CPU architecture, instructions, and timings.
+x86 and amd64 instructions reference: https://www.felixcloutier.com/x86/ - an excellent list of all the instructions available on the x86-64 instruction set. Be warned. Not everything maps 1:1 in either NASM/MASM syntax!
+Intel Intrinsics Guide: https://software.intel.com/sites/landingpage/IntrinsicsGuide/ - is an excellent guide to the intrinsic functions available for Intel CPUs.
+Instruction Tables: https://www.agner.org/optimize/instruction_tables.pdf - Reference instruction timings for various CPU generations.
+Intel Documentation
+Intel SDM Root Page: [https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html
